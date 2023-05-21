@@ -26,7 +26,7 @@ int character_count(FILE* ptr)
     {
         characters++;
     }
-    fseek(ptr, 0, SEEK_SET); 
+    fseek(ptr, 0, SEEK_SET);
     return characters;
 }
 
@@ -34,32 +34,45 @@ void encrypt(char* key, char* filename)
 {
     FILE* ptr;
     ptr = fopen(filename, "r");
+
     int lineCount = line_count(ptr);
+    printf("lineCount: %d\n", lineCount);
+
     int characters = character_count(ptr);
+
     int k = 0;
-    for (int i = 1; i < lineCount; ++i)
+    char ch;
+
+    char* new_str = malloc(sizeof(char) * (characters + 1));
+    while (fgets(new_str, characters + 1, ptr) != NULL)
     {
-        char* new_str = malloc(sizeof(char) * (characters + 1));
         new_str[characters] = '\0';
-        printf("i: %d\n", i);
-        fgets(new_str, characters + 1, ptr);
+        char* str_2 = malloc(sizeof(char) * (characters + 1));
+        fgets(str_2, characters + 1, ptr);
+        strcat(new_str, str_2);
+
+        //printf("i: %d\n", i);
         printf("new_str: %s\n", new_str);
-        for (int j = strlen(key) - 1; j < strlen(new_str); k++, j--)
+        printf("size_new_str: %d\n", strlen(new_str));
+
+        for (int j = strlen(key) - 1; k < strlen(new_str); k++, j--)
         {
             if (j < 0)
             {
                 j = strlen(key) - 1;
             }
             new_str[k] += key[j];
+            new_str[k] += k;
         }
         fclose(ptr);
+
         printf("new_str - encrypt: %s\n", new_str);
+
         ptr = fopen(filename, "a");
         fprintf(ptr, "%s", new_str);
         fclose(ptr);
     }
 
-    //return new_str;
 }
 
 char* decrypt(char* encrypted_str, char* key)
@@ -84,7 +97,7 @@ char* decrypt(char* encrypted_str, char* key)
 int main()
 {
     char dnevnik[10000];
-    char password[20] = "sisoni_123";
+    char password[20] = "obicham_kotki";
     char filename[] = "example.txt";
     encrypt(password, filename);
     //printf("encrypted <%s>\n", encrypted);
