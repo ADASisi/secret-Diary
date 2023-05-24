@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdbool.h>
 
+//https://github.com/ADASisi/secret-Diary.git
+
 int line_count(FILE* ptr)
 {
     int curr_line = 1;
@@ -33,12 +35,15 @@ int character_count(FILE* ptr)
 void encrypt(char* key, char* filename)
 {
     FILE* ptr;
-    ptr = fopen(filename, "r");
+    ptr = fopen(filename, "r+");
 
     int lineCount = line_count(ptr);
     printf("lineCount: %d\n", lineCount);
 
+    rewind(ptr);
     int characters = character_count(ptr);
+    printf("characters: %d\n", characters);
+
 
     int k = 0;
     char ch;
@@ -51,11 +56,10 @@ void encrypt(char* key, char* filename)
         fgets(str_2, characters + 1, ptr);
         strcat(new_str, str_2);
 
-        //printf("i: %d\n", i);
         printf("new_str: %s\n", new_str);
         printf("size_new_str: %d\n", strlen(new_str));
 
-        for (int j = strlen(key) - 1; k < strlen(new_str); k++, j--)
+        for (int j = strlen(key) - 1; k < characters; k++, j--)
         {
             if (j < 0)
             {
@@ -64,19 +68,20 @@ void encrypt(char* key, char* filename)
             new_str[k] += key[j];
             new_str[k] += k;
         }
-        fclose(ptr);
 
-        printf("new_str - encrypt: %s\n", new_str);
+        printf("%s\n", new_str);
 
-        ptr = fopen(filename, "a");
+        ptr = freopen(filename, "w+", stdout);
         fprintf(ptr, "%s", new_str);
         fclose(ptr);
     }
 
 }
 
-char* decrypt(char* encrypted_str, char* key)
+char* decrypt(char* filename, char* key)
 {
+    FILE* ptr;
+    ptr = fopen(filename, "w");
     char* decrypted_str = malloc(sizeof(char) * (strlen(encrypted_str) + 1));
     strcpy(decrypted_str, encrypted_str);
     decrypted_str[strlen(encrypted_str)] = '\0';
@@ -92,6 +97,8 @@ char* decrypt(char* encrypted_str, char* key)
         decrypted_str[i] -= key[j];
     }
     return decrypted_str;
+    fclose(ptr);
+
 }
 
 int main()
@@ -100,6 +107,7 @@ int main()
     char password[20] = "obicham_kotki";
     char filename[] = "example.txt";
     encrypt(password, filename);
+
     //printf("encrypted <%s>\n", encrypted);
 
     //char* decrypted = decrypt(encrypted, password);
