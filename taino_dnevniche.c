@@ -68,14 +68,13 @@ void encrypt(char* key, char* filename)
         new_str[k] += k;
     }
     //ptr_1 = ptr;
-    ptr = freopen(filename, "w+", stdout);
+    ptr = freopen(filename, "w", ptr);
     fprintf(ptr, "%s", new_str);
     fclose(ptr);
 }
 
 void decrypt(char* filename, char* key)
 {
-    printf("maika tiiiiiiiii \n");
     FILE* ptr;
     ptr = fopen(filename, "r");
 
@@ -91,7 +90,7 @@ void decrypt(char* filename, char* key)
     int i = 0;
     int j_rows = 0;
     //rewind(ptr);
-    for(int i = 0; i < characters + 1; i++)
+    for(int i = 0; i < characters ; i++)
     {
         char ch;
         ch = fgetc(ptr);
