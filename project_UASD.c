@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include "file_encryption.h"
 
 #define NUMBER_OF_SYMBOLS 100//max number of symbols stored in a file
 #define SYMBOLS_IN_MENU 50
