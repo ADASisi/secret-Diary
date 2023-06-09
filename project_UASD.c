@@ -256,8 +256,6 @@ void read_story(struct node* head, struct hashtable* table_for_dates, struct has
                 break;
             }
             
-            strcpy(filename, name);
-            strcat(filename, ".txt");
             if((read = fopen(filename, "r")) != NULL){
                 printf("\n");
                 make_uppercase(name);
