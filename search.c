@@ -234,7 +234,7 @@ void free_hashtable(struct hashtable* table){
     free(table);
 }
 
-void printSecondValues(struct hashtable* table, char* sourceForHash){
+int printSecondValues(struct hashtable* table, char* sourceForHash){
     if(hashtable_contains_sourceForHash(table, sourceForHash)){
         int bucket_index = hash(sourceForHash) % table->num_of_buckets;
         struct linkedlist* ll = table->buckets[bucket_index];
@@ -247,7 +247,12 @@ void printSecondValues(struct hashtable* table, char* sourceForHash){
             }
         }
     }
-    else printf("There is no such value!\n");
+    else {
+        printf("Wrong input!\n");
+        return 0;
+    }
+
+    return 1;
 }
 
 char* dateToString(int day, int mount, int year){
