@@ -15,7 +15,7 @@ struct node{
     struct node* next;
 };
 
-struct node* _init_(){// NE PIPAJ
+struct node* _init_(){
     struct node* node = malloc(sizeof(struct node));
     node->next = NULL;
     node->name = NULL;
@@ -26,7 +26,7 @@ struct node* _init_(){// NE PIPAJ
     return node;
 }
 
-void get_data(char* text, int* day, int* month, int* year){// NE PIPAJ
+void get_data(char* text, int* day, int* month, int* year){
     int i = 0, add = 0;
     while(text[i] != '@'){
         i++;
@@ -58,7 +58,7 @@ void get_data(char* text, int* day, int* month, int* year){// NE PIPAJ
     *day = add;
 }
 
-void extract_name(char* text, char* name){// NE PIPAJ
+void extract_name(char* text, char* name){
     int i = 0;
     while(text[i] != '@'){
         name[i] = text[i];
@@ -67,7 +67,7 @@ void extract_name(char* text, char* name){// NE PIPAJ
     name[i-1] = '\0';
 }
 
-void extract_filename(char* text, char* filename){// NE PIPAJ
+void extract_filename(char* text, char* filename){
     int i = 0, j = 0;
     char* c;
     while(text[i] != '@'){
@@ -81,20 +81,12 @@ void extract_filename(char* text, char* filename){// NE PIPAJ
     c = text + i;
     strcpy(filename, c);
     filename[strlen(filename) - 1] = '\0';
-    /*
-    while(text[i] != '\0'){
-        filename[j] = text[i];
-        printf("%c", filename[j]);
-        j++;
-    }
-    filename[j] = '\0';
-    */
 }
 
 
-void make_uppercase(char* heading){// NE PIPAJ
+void make_uppercase(char* heading){
     int i = 0;
-    while(heading[i] != '\0'){//\n when using gets
+    while(heading[i] != '\0'){
         if(heading[i] > 96 && heading[i] < 123){
             heading[i] += -32;
         }
@@ -102,7 +94,7 @@ void make_uppercase(char* heading){// NE PIPAJ
     }
 }
 
-void generate_filename(char* filename){// NE PIPAJ
+void generate_filename(char* filename){
     int i = time(NULL), j = 0;
     while(j < MAX_FILENAME_LENGTH - 6){
         i = (((j+i)*i)%26) + 97;
@@ -113,33 +105,7 @@ void generate_filename(char* filename){// NE PIPAJ
     strcat(filename, ".txt");
 }
 
-/*
-void generate_filename(char* name, int day, int month, int year, char* filename){// NE PIPAJ
-    int i = 0, j = 0;
-
-    while(j < MAX_FILENAME_LENGTH - 6){
-        if(name[i] != '\0'){
-            filename[i] = name[i];
-            i++;
-        }
-        else{
-            filename[j] = (((j+i)*i)%26) + 97;
-        }
-        if(j == day){
-            filename[j] = day + 64;
-        }
-        if(j == day + month){
-            filename[j] = month + 47;
-        }
-        j++;
-    }
-    filename[j] = (year % 26) + 97;
-    filename[j+1] = '\0';
-    strcat(filename, ".txt");
-}
-*/
-
-void insert_node(struct node** head, char* name, char* filename, int day, int month, int year) {// NE PIPAJ
+void insert_node(struct node** head, char* name, char* filename, int day, int month, int year) {
     struct node* new_node = _init_();
     new_node->name = malloc((strlen(name) + 1) * sizeof(char));
     new_node->filename = malloc((strlen(filename) + 1) * sizeof(char));
@@ -169,7 +135,7 @@ void insert_node(struct node** head, char* name, char* filename, int day, int mo
     }
 }
 
-void getting_menu(struct node** head, char* text){// NE PIPAJ
+void getting_menu(struct node** head, char* text){
     int day, month, year;
     char name[HEADING_SYMBOLS], filename[MAX_FILENAME_LENGTH];
     get_data(text, &day, &month, &year);
@@ -242,7 +208,7 @@ void add_story(struct node** head){
         else{
             if(text[i] != ' ' && text[i-1] != '@'){
                 if(text[i] == ' '){
-                    fprintf(story, " ");// it doesn't print spaces! 
+                    fprintf(story, " "); 
                     printf(" ");
                 }
                 fprintf(story, "%c", text[i]);
@@ -313,22 +279,12 @@ void read_story(struct node* head){
             }
         };
     }
-/*
-        char stay[4];
-        printf("\nDO YOU WANT TO KEEP READING?: ");
-        scanf("%s", stay);
-        if(strcmp(stay,"yes") == 0){
-            print_menu(head);
-            read_story(head);
-        }
-    }
-*/
 }
 
-int main(){// NE PIPAJ
+int main(){
     int choice;
     char text[MAX_MENU_LINE_LENGTH];
-    struct node* head = NULL;//= _init_();
+    struct node* head = NULL;
     FILE* menu;
     if((menu = fopen("menu.txt", "r")) != NULL){
         while (fgets(text, MAX_MENU_LINE_LENGTH, menu) != NULL)
@@ -382,7 +338,5 @@ int main(){// NE PIPAJ
         free(temp2);
         temp2 = temp1;
     }
-    //free(temp1);
-    //free(temp2);
     return 0;
 }
