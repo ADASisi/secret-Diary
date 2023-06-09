@@ -3,6 +3,15 @@
 #include <string.h>
 #include <stdbool.h>
 
+
+int hash(char* str) {
+    int hash = 0;
+    for(int i = 1; i < strlen(str); i++) {
+        hash += i * str[i] * str[i];
+    }
+    return hash;
+}
+
 int line_count(FILE* ptr)
 {
     int curr_line = 1;
@@ -158,8 +167,10 @@ void decrypt(char* filename, char* key)
 
 int main()
 {
-    char password[20] = "obicham_kotki";
+    char password[20] = "obicham_kotki_1234";
     char filename[] = "example.txt";
+    int hashed = hash(password);
+    itoa(hashed, password, 10);
     encrypt(password, filename);
 
     decrypt(filename, password);
