@@ -23,37 +23,35 @@ struct node* _init_(){
 }
 
 void get_data(char* text, int* day, int* month, int* year){
-    int i = 0, add = 0, multiplier = 1;
-    while(text[i] != '\0'){
+    int i = 0, add = 0;
+    while(text[i] != '@'){
         i++;
     }
-    printf("\n\n%d\n\n", i);
-    i -= 2;
+    i += 2;
+
     while (text[i] != '.'){
-        printf("%c\n", text[i]);
-        add = text[i] - '0';
-        *year += add * multiplier;
-        multiplier *= 10;
-        i--;
+        add = add * 10 + (text[i] - '0');
+        i++;
     }
-    i --;
-    multiplier = 1;
+    *year = add;
+
+    i++;
+    add = 0;
+
     while (text[i] != '.'){
-        printf("%c\n", text[i]);
-        add = text[i] - '0';
-        *month += add * multiplier;
-        multiplier *= 10;
-        i--;
+        add = add * 10 + (text[i] - '0');
+        i++;
     }
-    i--;
-    multiplier = 1;
-    while (text[i] != ' '){
-        printf("%c\n", text[i]);
-        add = text[i] - '0';
-        *day += add * multiplier;
-        multiplier *= 10;
-        i--;
+    *month = add;
+
+    i++;
+    add = 0;
+
+    while (text[i] != '\n'){
+        add = add * 10 + (text[i] - '0');
+        i++;
     }
+    *day = add;
 }
 
 void extract_name(char* text, char* name){
@@ -78,51 +76,28 @@ void make_uppercase(char* heading){  //to upper
 void insert_node(struct node** head, char* name, int day, int month, int year){
     struct node* new_node = _init_();
     int i = 0;
-    new_node->name = malloc(strlen(name)*sizeof(char));
+    new_node->name = malloc(strlen(name)*sizeof(char) + 1);
+    strcpy(new_node->name, name);
     new_node->day = day;
     new_node->month = month;
     new_node->year = year;
-    strcpy(new_node->name, name);
     make_uppercase(new_node->name);
-    if((*head)->name == NULL){
+
+     if ((*head) == NULL || (*head)->year > year || ((*head)->year == year && (*head)->month > month) || ((*head)->year == year && (*head)->month == month && (*head)->day > day)){
+        new_node->next = *head;
         *head = new_node;
     }
-    else{
+    else {
         struct node* temp = *head;
-        while(temp->next != NULL){
-            if(temp->year > new_node->year){
-                break;
-            }  
-            if(temp->year == new_node->year){
-                if(temp->month > new_node->month){
-                    break;
-                }
-                if(temp->month == new_node->month){
-                    if(temp->day > new_node->day){
-                        break;
-                    }
-                }
-            }
-            i++;
+        while (temp->next != NULL && (temp->next->year < year || (temp->next->year == year && temp->next->month < month) || (temp->next->year == year && temp->next->month == month && temp->next->day < day))){
             temp = temp->next;
         }
-        if(temp == *head){
-            new_node->next = temp;
-            *head = new_node;
-        }
-        else{
-            temp = *head;
-            for (int j = 0; j < i - 1; j++) {
-                temp = temp->next;
-            }
-            new_node->next = temp->next;
-            temp->next = new_node;
-        }
+        new_node->next = temp->next;
+        temp->next = new_node;
     }
 }
 
 void getting_menu(struct node** head, char* text){
-    printf("%s", text);
     int day, month, year;
     char name[HEADING_SUMBOLS];
     get_data(text, &day, &month, &year);
@@ -153,13 +128,14 @@ void print_menu(struct node* head){
 int check_if_file_exists(char* name){
     FILE* file;
     if((file = fopen(name,"r")) == NULL){
+        fclose(file);
         return 0;//doesn't exist
     }
     else{
         printf("STORY WITH THE SAME NAME ALREADY EXIST\n");
+        fclose(file);
         return 1;//exists
     }
-    fclose(file);
 }
 
 void add_story(struct node** head){
@@ -172,16 +148,22 @@ void add_story(struct node** head){
         strcpy(filename, name);
         strcat(filename, ".txt");
     }while(check_if_file_exists(filename) == 1);
-
-    printf("ENTER ON WHICH DAY DID IT HAPPEN: ");
-    scanf("%d", &day);
-    getchar();
-    printf("ENTER IN WHICH MONTH DID IT HAPPEN: ");
-    scanf("%d", &month);
-    getchar();
-    printf("ENTER WHICH YEAR DID IT HAPPEN: ");
-    scanf("%d", &year);
-    getchar();
+    do{
+        printf("ENTER ON WHICH DAY DID IT HAPPEN: ");
+        scanf("%d", &day);
+        getchar();
+    }while(day < 1 || day > 31);
+    do{
+        printf("ENTER IN WHICH MONTH DID IT HAPPEN: ");
+        scanf("%d", &month);
+        getchar();
+    }while(month < 1 || month > 12);
+    do{
+        printf("ENTER WHICH YEAR DID IT HAPPEN: ");
+        scanf("%d", &year);
+        getchar();
+    }while(year > 2023);
+    
 
     insert_node(head, name, day, month, year);
 
@@ -249,14 +231,15 @@ void read_story(struct node* head){
                         printf("%s\n", text);
                     }
                     printf("\n");
+                    fclose(read);
                     break;
                 }
                 else{
+                    fclose(read);
                     printf("ERROR WITH OPENING THE FILE\n");
                 }
             }
         };
-        fclose(read);
         char stay[4];
         printf("\nDO YOU WANT TO KEEP READING?: ");
         scanf("%s", stay);
@@ -270,13 +253,12 @@ void read_story(struct node* head){
 int main(){
     int choice;
     char text[SYMBOLS_IN_MENU];
-    struct node* head = _init_();
+    struct node* head;//= _init_()
 
     FILE* menu;
     if((menu = fopen("menu.txt", "r")) != NULL){
         while (fgets(text, SYMBOLS_IN_MENU, menu) != NULL)
         {
-            //printf("skrr%s\n", text);
             getting_menu(&head, text);
         }
     }    
@@ -306,6 +288,16 @@ int main(){
         head = head->next;
     }
     fclose(menu);
+    struct node* temp1 = head,* temp2 = head;
+    while(temp1 != NULL){
+        temp1 = temp1->next;
+        free(temp2->name);
+        free(temp2);
+        temp2 = temp1;
+    }
+    free(temp1);
+    free(temp2);
+    free(head);
     return 0;
 }
 
