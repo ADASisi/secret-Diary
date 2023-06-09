@@ -44,7 +44,7 @@ int character_count(FILE* ptr)
 
 char* encrypt_password(char* key, char* password)
 {
-    char* crypt_password = malloc(sizeof(char) * (strlen(password) + 1));
+    char* crypt_password = (char *)malloc(sizeof(char) * (strlen(password) + 1));
     for(int i = 0; i < strlen(password); i++)
     {
         crypt_password[i] += key[i];
@@ -54,10 +54,10 @@ char* encrypt_password(char* key, char* password)
 
 char* decrypt_password(char* key, char* password)
 {
-    char* decrypt_password = malloc(sizeof(char) * (strlen(password) + 1));
+    char* decrypt_password = (char *)malloc(sizeof(char) * (strlen(password) + 1));
     for(int i = 0; i < strlen(password); i++)
     {
-        crypt_password[i] -= key[i];
+        decrypt_password[i] -= key[i];
     }
     return decrypt_password;
 }
@@ -70,7 +70,7 @@ void encrypt(char* key, char* filename)
     int characters = character_count(ptr);
     //printf("characters: %d\n", characters);
 
-    char* new_str = malloc(sizeof(char) * (characters + 1));
+    char* new_str = (char *) malloc(sizeof(char) * (characters + 1));
 
     for (int i = 0; i < characters + 1; i++)
     {
@@ -138,7 +138,7 @@ void decrypt(char* filename, char* key)
     int characters = character_count(ptr);
     //printf("characters: %d\n", characters);
 
-    char* decrypted_str = malloc(sizeof(char) * (characters + 1));
+    char* decrypted_str = (char *) malloc(sizeof(char) * (characters + 1));
 
     for (int i = 0; i < characters + 1; i++)
     {
