@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "file_encryption.h"
 
 #define MAX_FILE_LINE_LENGTH 100
 #define MAX_MENU_LINE_LENGTH 100
@@ -209,7 +210,7 @@ void print_menu(struct node* head){
     }
 }
 
-void add_story(struct node** head){
+void add_story(struct node** head, char* password){
     char name[HEADING_SYMBOLS], text[MAX_FILE_LINE_LENGTH], filename[MAX_FILENAME_LENGTH];
     int day, month, year, i = 0;
     printf("\nENTER NAME OF STORY: ");
@@ -265,11 +266,12 @@ void add_story(struct node** head){
         }
         i++;
     }
-    printf("\n");
     fclose(story);
+    encrypt(password, filename);
+    printf("\n");
 }
 
-void read_story(struct node* head){
+void read_story(struct node* head, char* password){
     if(head->name != NULL){
         char text[MAX_FILE_LINE_LENGTH], name[HEADING_SYMBOLS];
         FILE *read;
@@ -282,10 +284,11 @@ void read_story(struct node* head){
                 printf("\n");
                 while(temp != NULL){
                     printf("    %s\n", temp->name);
-                    read = fopen(temp->filename, "r");
+                    decrypt(temp->filename, password);
+                    /*read = fopen(temp->filename, "r");
                     while(fgets(text, MAX_FILE_LINE_LENGTH, read)){
                         printf("%s\n", text);
-                    }
+                    }*/
                     printf("\n");
                     fclose(read);
                     temp = temp->next;
@@ -301,10 +304,10 @@ void read_story(struct node* head){
                     printf("\n");
                     make_uppercase(name);
                     printf("    %s\n", name);
-
-                    while(fgets(text, MAX_FILE_LINE_LENGTH, read)){
+                    decrypt(temp->filename, password);
+                    /*while(fgets(text, MAX_FILE_LINE_LENGTH, read)){
                         printf("%s\n", text);
-                    }
+                    }*/
                     printf("\n");
                     fclose(read);
                     break;
@@ -429,14 +432,14 @@ int main() {
                 break;
             case 3:
                 if (current_user != NULL) {
-                    add_story(&head, current_user->username);
+                    add_story(&head, current_user->password);
                 } else {
                     printf("Please log in first.\n");
                 }
                 break;
             case 4:
                 if (current_user != NULL) {
-                    read_story(head, current_user->username);
+                    read_story(head, current_user->password);
                 } else {
                     printf("Please log in first.\n");
                 }
