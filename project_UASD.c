@@ -202,8 +202,9 @@ void add_story(struct node** head){
             }
         }
     }
-    printf("\n");
     fclose(story);
+    encrypt("1234", filename);
+    printf("\n");
 }
 
 void read_story(struct node* head, struct hashtable* table_for_dates, struct hashtable* table_for_titles){
@@ -262,10 +263,11 @@ void read_story(struct node* head, struct hashtable* table_for_dates, struct has
                 printf("\n");
                 make_uppercase(name);
                 printf("    %s\n", name);
-
-                while(fgets(text, NUMBER_OF_SYMBOLS, read)){
+                fclose(read);
+                /*while(fgets(text, NUMBER_OF_SYMBOLS, read)){
                     printf("%s\n", text);
-                }
+                }*/
+                decrypt(filename, "1234");
                 printf("\n");
                 break;
             }

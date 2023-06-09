@@ -6,6 +6,14 @@
 #include <string.h>
 #include <stdbool.h>
 
+int hash(char* str) {
+    int hash = 0;
+    for(int i = 1; i < strlen(str); i++) {
+        hash += i * str[i] * str[i];
+    }
+    return hash;
+}
+
 int line_count(FILE* ptr)
 {
     int curr_line = 1;
@@ -32,6 +40,26 @@ int character_count(FILE* ptr)
     }
     fseek(ptr, 0, SEEK_SET);
     return characters;
+}
+
+char* encrypt_password(char* key, char* password)
+{
+    char* crypt_password = malloc(sizeof(char) * (strlen(password) + 1));
+    for(int i = 0; i < strlen(password); i++)
+    {
+        crypt_password[i] += key[i];
+    }
+    return crypt_password;
+}
+
+char* decrypt_password(char* key, char* password)
+{
+    char* decrypt_password = malloc(sizeof(char) * (strlen(password) + 1));
+    for(int i = 0; i < strlen(password); i++)
+    {
+        crypt_password[i] -= key[i];
+    }
+    return decrypt_password;
 }
 
 void encrypt(char* key, char* filename)
