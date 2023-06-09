@@ -367,7 +367,9 @@ int main(){
     if((hashtable_contains(table_for_titles, "df", "22/02/2015")) != NULL) printf("Search by title - file name: %s\n", hashtable_contains(table_for_titles, "title5", "22/02/2015"));
     else printf("does not contain\n");
 
-    char* str = dateToString(12, 12, 2019);
+    char* str;
+    str = dateToString(12, 12, 2019);
+    printf("date: %s\n", str);
     printSecondValues(table_for_dates, str);
 
     free(table_for_dates);

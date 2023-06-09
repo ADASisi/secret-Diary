@@ -223,26 +223,26 @@ void read_story(struct node* head, struct hashtable* table_for_dates, struct has
             if(option == 1){
                 printf("\nENTER THE DATE OF THE STORY YOU WANT TO READ: ");
                 fgets(sourceForHash, STRINGSIZE, stdin);
-                printf("sourceForHash: %s123\n", sourceForHash);
+                sourceForHash[strlen(sourceForHash) - 1] = '\0';
                 
                 printSecondValues(table_for_dates, sourceForHash);
 
                 printf("Enter which one to open: ");
-                fgets(sourceForHash, STRINGSIZE, stdin);
-                printf("sourceForHash: %s123\n", secondValue);
+                fgets(secondValue, STRINGSIZE, stdin);
+                secondValue[strlen(secondValue) - 1] = '\0';
 
                 filename = hashtable_contains(table_for_dates, sourceForHash, secondValue);
             }
             else if(option == 2){
                 printf("\nENTER THE DATE OF THE STORY YOU WANT TO READ: ");
                 fgets(sourceForHash, STRINGSIZE, stdin);
-                printf("sourceForHash: %s123\n", sourceForHash);
+                sourceForHash[strlen(sourceForHash) - 1] = '\0';
                 
                 printSecondValues(table_for_dates, sourceForHash);
 
                 printf("Enter which one to open: ");
                 fgets(secondValue, STRINGSIZE, stdin);
-                printf("sourceForHash: %s123\n", secondValue);
+                secondValue[strlen(secondValue) - 1] = '\0';
 
                 filename = hashtable_contains(table_for_dates, sourceForHash, secondValue);
             }
