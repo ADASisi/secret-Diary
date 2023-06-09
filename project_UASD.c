@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-
+#include "search.c"
 #define NUMBER_OF_SYMBOLS 100//max number of symbols stored in a file
 #define SYMBOLS_IN_MENU 50
 #define HEADING_SUMBOLS 30
@@ -143,10 +143,20 @@ void print_menu(struct node* head){
         while(itt != NULL){
             printf("%s - %d.%d.%d\n", itt->name, itt->day, itt->month, itt->year);
             itt = itt->next;
-            //daliq -- table = hashtable_add(table, itt->name, date, itt->id);
         }
         printf("------------------------\n");
         printf("READ ALL(type \"read all\")\n");
+    }
+}
+
+void fillingHashtables(struct node* head, struct hashtable* table_for_dates, struct hashtable* table_for_titles){
+    struct node* itt = head;
+    if(itt->name != NULL){
+        while(itt != NULL){
+            itt = itt->next;
+            //table_for_titles = hashtable_add(table_for_titles, itt->name, dateToString(itt->day, itt->month, itt->year), itt->id);
+            //table_for_dates = hashtable_add(table_for_dates, dateToString(itt->day, itt->month, itt->year), itt->name, itt->id);
+        }
     }
 }
 
@@ -212,6 +222,87 @@ void add_story(struct node** head){
     fclose(story);
 }
 
+void read_story(struct node* head, struct hashtable* table_for_dates, struct hashtable* table_for_titles){
+        int option;
+        char text[NUMBER_OF_SYMBOLS], name[HEADING_SUMBOLS];
+        char* filename;
+        FILE *read;
+        char secondValue[STRINGSIZE];
+        char sourceForHash[STRINGSIZE];
+        getchar();
+        while(1){
+            printf("CHOOSE TO ENTER DATE OR TITLE OF THE STORY\n");
+            printf("1) DATE\n");
+            printf("2) TITLE\n");
+            printf("Option: ");
+            scanf("%d", &option);
+            if(option == 1){
+                printf("\nENTER THE DATE OF THE STORY YOU WANT TO READ: ");
+                fgets(sourceForHash, STRINGSIZE, stdin);
+                printf("sourceForHash: %s123\n", sourceForHash);
+                
+                printSecondValues(table_for_dates, sourceForHash);
+
+                printf("Enter which one to open: ");
+                fgets(sourceForHash, STRINGSIZE, stdin);
+                printf("sourceForHash: %s123\n", secondValue);
+
+                filename = hashtable_contains(table_for_dates, sourceForHash, secondValue);
+            }
+            else if(option == 2){
+                printf("\nENTER THE DATE OF THE STORY YOU WANT TO READ: ");
+                fgets(sourceForHash, STRINGSIZE, stdin);
+                printf("sourceForHash: %s123\n", sourceForHash);
+                
+                printSecondValues(table_for_dates, sourceForHash);
+
+                printf("Enter which one to open: ");
+                fgets(secondValue, STRINGSIZE, stdin);
+                printf("sourceForHash: %s123\n", secondValue);
+
+                filename = hashtable_contains(table_for_dates, sourceForHash, secondValue);
+            }
+            else {
+                printf("There is no such option!\n");
+                break;
+            }
+
+            if(filename == NULL) {
+                printf("There is not such story!\n");
+                break;
+            }
+            
+            strcpy(filename, name);
+            strcat(filename, ".txt");
+            if((read = fopen(filename, "r")) != NULL){
+                printf("\n");
+                make_uppercase(name);
+                printf("    %s\n", name);
+
+                while(fgets(text, NUMBER_OF_SYMBOLS, read)){
+                    printf("%s\n", text);
+                }
+                printf("\n");
+                break;
+            }
+            else{
+                printf("ERROR WITH OPENING THE FILE\n");
+                break;
+            }
+        }
+
+        fclose(read);
+        
+        char stay[4];
+        printf("\nDO YOU WANT TO KEEP READING?: ");
+        scanf("%s", stay);
+        if(strcmp(stay,"yes") == 0){
+            print_menu(head);
+            read_story(head, table_for_dates, table_for_titles);
+        }
+}
+/*
+
 void read_story(struct node* head){
     if(head->name != NULL){
         char text[NUMBER_OF_SYMBOLS], name[HEADING_SUMBOLS], filename[HEADING_SUMBOLS + 4];
@@ -266,7 +357,7 @@ void read_story(struct node* head){
         }
     }
 }
-
+*/
 int main(){
     int choice;
     char text[SYMBOLS_IN_MENU];
@@ -276,11 +367,15 @@ int main(){
     if((menu = fopen("menu.txt", "r")) != NULL){
         while (fgets(text, SYMBOLS_IN_MENU, menu) != NULL)
         {
-            //printf("skrr%s\n", text);
             getting_menu(&head, text);
         }
     }    
     fclose(menu);
+
+    struct  hashtable* table_for_titles = hashtable_init(10, 5);
+    struct  hashtable* table_for_dates = hashtable_init(10, 5);
+
+    fillingHashtables(head, table_for_dates, table_for_titles);
     
     printf("THIS IS PERSONAL DIARY PLEASE DON'T LOOK IN IT IF IT'S NOT YOURS!\n\n");
     do{
@@ -295,7 +390,7 @@ int main(){
 
         if(choice == 2){
             print_menu(head);
-            read_story(head);
+            read_story(head, table_for_dates, table_for_titles);
         }
 
     }while(choice != 3);
