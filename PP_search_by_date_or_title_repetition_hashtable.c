@@ -19,9 +19,9 @@ int equals(char* a, char* b) {
 #define CAPACITY 10
 
 struct dynamic_array_t {
-	char** buff; // 8
-	int count; // 4
-	int capacity; // 4
+	char** buff;
+	int count;
+	int capacity;
 };
 
 struct dynamic_array_t* dynamic_array_init(int capacity) {
@@ -234,22 +234,56 @@ void free_hashtable(struct hashtable* table){
     free(table);
 }
 
+void printSecondValues(struct hashtable* table, char* sourceForHash){
+    if(hashtable_contains_sourceForHash(table, sourceForHash)){
+        int bucket_index = hash(sourceForHash) % table->num_of_buckets;
+        struct linkedlist* ll = table->buckets[bucket_index];
+
+        for(struct linkedlist_node *curr = ll->head; curr != NULL; curr = curr->next){// worst case O(3)
+            if(!strcmp(sourceForHash, curr->sourceForHash)) {
+                for(int i = 0; i < curr->secondValue->count; i++){
+                    printf("%s\n", curr->secondValue->buff[i]);
+                }
+            }
+        }
+    }
+    else printf("There is no such value!\n");
+}
+
+char* dateToString(int day, int mount, int year){
+    char* str;
+    char* dateString = calloc(40, sizeof(char));
+
+    sprintf(str,"%d",day);
+    strcpy(dateString, str);
+    strcat(dateString, ".");
+
+    sprintf(str,"%d",mount);
+    strcat(dateString, str);
+    strcat(dateString, ".");
+    
+    sprintf(str,"%d",year);
+    strcat(dateString, str);
+
+    return dateString;
+}
+
 int main(){
     struct hashtable* table_for_dates = hashtable_init(5, 3);
     struct hashtable* table_for_titles = hashtable_init(5, 3);
 
 
-    table_for_dates = hashtable_add(table_for_dates, "23/04/2000", "title", "fileName1");
-    table_for_dates = hashtable_add(table_for_dates, "12/12/2019", "title", "fileName2");
-    table_for_dates = hashtable_add(table_for_dates, "12/12/2019", "title3", "fileName3");
-    table_for_dates = hashtable_add(table_for_dates, "31/12/2023", "title4", "fileName4");
-    table_for_dates = hashtable_add(table_for_dates, "22/02/2015", "title5", "fileName5");
+    table_for_dates = hashtable_add(table_for_dates, "23.4.2000", "title", "fileName1");
+    table_for_dates = hashtable_add(table_for_dates, "12.12.2019", "title", "fileName2");
+    table_for_dates = hashtable_add(table_for_dates, "12.12.2019", "title3", "fileName3");
+    table_for_dates = hashtable_add(table_for_dates, "31.12.2023", "title4", "fileName4");
+    table_for_dates = hashtable_add(table_for_dates, "22.2.2015", "title5", "fileName5");
 
-    table_for_titles = hashtable_add(table_for_titles, "title", "23/04/2000", "fileName1");
-    table_for_titles = hashtable_add(table_for_titles, "title", "12/12/2019", "fileName2");
-    table_for_titles = hashtable_add(table_for_titles, "title3", "12/12/2019", "fileName3");
-    table_for_titles = hashtable_add(table_for_titles, "title4", "31/12/2023", "fileName4");
-    table_for_titles = hashtable_add(table_for_titles, "title5", "22/02/2015", "fileName5");
+    table_for_titles = hashtable_add(table_for_titles, "title", "23.4.2000", "fileName1");
+    table_for_titles = hashtable_add(table_for_titles, "title", "12.12.2019", "fileName2");
+    table_for_titles = hashtable_add(table_for_titles, "title3", "12.12.2019", "fileName3");
+    table_for_titles = hashtable_add(table_for_titles, "title4", "31.12.2023", "fileName4");
+    table_for_titles = hashtable_add(table_for_titles, "title5", "22.2.2015", "fileName5");
 
 
     for(int i = 0; i < table_for_dates->num_of_buckets; i++){
@@ -275,6 +309,9 @@ int main(){
 
     if((hashtable_contains(table_for_titles, "df", "22/02/2015")) != NULL) printf("Search by title - file name: %s\n", hashtable_contains(table_for_titles, "title5", "22/02/2015"));
     else printf("does not contain\n");
+
+    char* str = dateToString(12, 12, 2019);
+    printSecondValues(table_for_dates, str);
 
     free(table_for_dates);
     free(table_for_titles);
