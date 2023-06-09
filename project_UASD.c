@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<time.h>
+#include"search.c"
 
 #define MAX_FILE_LINE_LENGTH 100//max number of symbols stored in a file
 #define MAX_MENU_LINE_LENGTH 100
@@ -254,6 +255,17 @@ void add_story(struct node** head){
     fclose(story);
 }
 
+void fillingHashtables(struct node* head, struct hashtable* table_for_dates, struct hashtable* table_for_titles){
+    struct node* itt = head;
+    if(itt->name != NULL){
+        while(itt != NULL){
+            table_for_titles = hashtable_add(table_for_titles, itt->name, dateToString(itt->day, itt->month, itt->year), itt->filename);
+            table_for_dates = hashtable_add(table_for_dates, dateToString(itt->day, itt->month, itt->year), itt->name, itt->filename);
+            itt = itt->next;
+        }
+    }
+}
+
 void read_story(struct node* head){
     if(head->name != NULL){
         char text[MAX_FILE_LINE_LENGTH], name[HEADING_SYMBOLS];
@@ -323,9 +335,20 @@ int main(){// NE PIPAJ
         {
             if (*text == '\n') continue;
             getting_menu(&head, text);
+            //printf("%s\n", head->name);
+            //printf("%d\n", head->day);
+            //printf("%s\n", head->filename);
+            //printf("Got\n");
         }
     }    
     fclose(menu);
+
+    struct  hashtable* table_for_titles = hashtable_init(10, 5);
+    struct  hashtable* table_for_dates = hashtable_init(10, 5);
+
+    printf("HERE\n");
+    fillingHashtables(head, table_for_dates, table_for_titles);
+    printf("HERE\n");
     
     printf("THIS IS PERSONAL DIARY PLEASE DON'T LOOK IN IT IF IT'S NOT YOURS!\n\n");
     do{
