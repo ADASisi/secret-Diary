@@ -4,14 +4,6 @@
 #include <stdbool.h>
 
 
-int hash(char* str) {
-    int hash = 0;
-    for(int i = 1; i < strlen(str); i++) {
-        hash += i * str[i] * str[i];
-    }
-    return hash;
-}
-
 int line_count(FILE* ptr)
 {
     int curr_line = 1;
@@ -40,22 +32,25 @@ int character_count(FILE* ptr)
     return characters;
 }
 
-void encrypt(char* key, char* filename)
+void encrypt(char* key, char* text)
 {
-    FILE* ptr;
+    /*FILE* ptr;
     ptr = fopen(filename, "r");
 
     int characters = character_count(ptr);
     printf("characters: %d\n", characters);
 
-    char* new_str = malloc(sizeof(char) * (characters + 1));
+    
     for (int i = 0; i < characters + 1; i++)
     {
         char ch;
         ch = fgetc(ptr);
         new_str[i] = ch;
-    }
-    new_str[characters] = '\0';
+    }*/
+    int len_text = strlen(text);
+    char* new_str = malloc(sizeof(char) * (strlen(text) + 1));
+    strcmp(new_str, text);
+    new_str[len_text] = '\0';
 
     printf("new_str: %s\n", new_str);
 
@@ -66,7 +61,8 @@ void encrypt(char* key, char* filename)
         prime = true;
     }
     rows++;
-    for (int k = 0, j = strlen(key) - 1; k < characters; k++, j--)
+
+    for (int k = 0, j = strlen(key) - 1; k < len_text; k++, j--)
     {
         if (new_str[k] == '\n')
         {
@@ -88,7 +84,7 @@ void encrypt(char* key, char* filename)
         if (prime == true)
         {
             new_str[k] += key[j];
-            new_str[k] += k;
+            //new_str[k] += k;
         }
         if (prime == false)
         {
@@ -96,10 +92,10 @@ void encrypt(char* key, char* filename)
             new_str[k] += k;
         }
     }
-    fclose(ptr);
+    /*fclose(ptr);
     ptr = fopen(filename, "w");
     fprintf(ptr, "%s", new_str);
-    fclose(ptr);
+    fclose(ptr);*/
     free(new_str);
 }
 
@@ -137,7 +133,7 @@ void decrypt(char* filename, char* key)
         if (prime == true)
         {
             decrypted_str[i] -= key[j];
-            decrypted_str[i] -= i;
+            //decrypted_str[i] -= i;
         }
         if (prime == false)
         {
@@ -169,8 +165,6 @@ int main()
 {
     char password[20] = "obicham_kotki_1234";
     char filename[] = "example.txt";
-    int hashed = hash(password);
-    itoa(hashed, password, 10);
     encrypt(password, filename);
 
     decrypt(filename, password);
