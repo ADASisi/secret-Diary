@@ -186,11 +186,8 @@ void add_story(struct node** head, struct hashtable* table_for_dates, struct has
     }while(year > 2023);
     
     generate_filename(filename);
-
-    printf("%s", filename);
     
     insert_node(head, name, filename, day, month, year);
-    printf("\nafter insert\n");
 
     table_for_titles = hashtable_add(table_for_titles, name, dateToString(day, month, year), filename);
     table_for_dates = hashtable_add(table_for_dates, dateToString(day, month, year), name, filename);
@@ -201,23 +198,21 @@ void add_story(struct node** head, struct hashtable* table_for_dates, struct has
     printf("\n");
     while(1){
         text[i] = getchar();
-        if(text[i] == '\n' && text[i-1] != '!' && text[i-1] != '?' && text[i-1] != '.' && text[i-1] != ';'){
-            fprintf(story, ".");
-            printf(".");
+        if(text[i] == '\n'){
+            if(text[i-1] != '!' && text[i-1] != '?' && text[i-1] != '.' && text[i-1] != ';'){
+                fprintf(story, ".");
+            }
             break;
         }
         if(text[i] == '@'){
             fprintf(story, "\n");
-            printf("\n");
         }
         else{
             if(text[i] != ' ' && text[i-1] != '@'){
                 if(text[i] == ' '){
                     fprintf(story, " "); 
-                    printf(" ");
                 }
                 fprintf(story, "%c", text[i]);
-                printf("%c", text[i]);
             }
         }
         i++;
