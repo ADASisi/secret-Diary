@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<time.h>
+#include"search.c"
 
 #define MAX_FILE_LINE_LENGTH 100
 #define MAX_MENU_LINE_LENGTH 100
@@ -9,6 +10,7 @@
 #define MAX_FILENAME_LENGTH 50
 #define MAX_USERNAME_LENGTH 20
 #define MAX_PASSWORD_LENGTH 20
+//#define STRINGSIZE 40
 
 struct node{
     char* name, *filename;
@@ -173,7 +175,68 @@ struct node* select_story(struct node* head, struct node** prev) {
     return curr;
 }
 
-void add_story(struct node** head, char* menu_filename){
+char* search_story(struct node* head, struct node** prev, struct  hashtable* table_for_titles, struct  hashtable* table_for_dates) {
+    struct node* curr = head;
+    int i = 0;
+    char* filename;
+    char secondValue[STRINGSIZE];
+    char sourceForHash[STRINGSIZE];
+    int option;
+
+    while (curr) {
+        i++;
+        printf("%d. %s - %d.%d.%d\n", i, curr->name, curr->day, curr->month, curr->year);
+        curr = curr->next;
+    }
+
+    printf("Choose to enter date or title of the story:\n");
+    printf("1) DATE\n");
+    printf("2) TITLE\n");
+    printf("Option: ");
+    scanf("%d", &option);
+    getchar();
+    if(option == 1){
+        printf("\nEnter the date of the story you want to read(dd.mm.yyyy): ");
+        fgets(sourceForHash, STRINGSIZE, stdin);
+        sourceForHash[strlen(sourceForHash) - 1] = '\0';
+        
+        if(printSecondValues(table_for_dates, sourceForHash)){
+            printf("Enter the date of the story: ");
+            fgets(secondValue, STRINGSIZE, stdin);
+            secondValue[strlen(secondValue) - 1] = '\0';
+
+            filename = hashtable_contains(table_for_dates, sourceForHash, secondValue);
+        }
+        else return NULL;
+
+    }
+    else if(option == 2){
+        printf("\nENTER THE TITLE OF THE STORY YOU WANT TO READ: ");
+        fgets(sourceForHash, STRINGSIZE, stdin);
+        sourceForHash[strlen(sourceForHash) - 1] = '\0';
+        
+        if(printSecondValues(table_for_titles, sourceForHash)){
+            printf("Enter the title of the story: ");
+            fgets(secondValue, STRINGSIZE, stdin);
+            secondValue[strlen(secondValue) - 1] = '\0';
+
+            filename = hashtable_contains(table_for_titles, sourceForHash, secondValue);
+        }
+        else return NULL;
+    }
+    else {
+        printf("There is no such option!\n");
+        return NULL;
+    }
+
+    if(filename == NULL) {
+        printf("There is not such story!\n");
+    }
+
+    return filename;
+}
+
+void add_story(struct node** head, char* menu_filename, struct  hashtable* table_for_titles, struct  hashtable* table_for_dates){
     char name[MAX_FILE_LINE_LENGTH], text[MAX_FILE_LINE_LENGTH];
     int day, month, year, i = 0, space_printed = 0;
     printf("Enter the story name: ");
@@ -187,6 +250,10 @@ void add_story(struct node** head, char* menu_filename){
 
     char filename[MAX_FILENAME_LENGTH];
     generate_filename(filename);
+
+    //printf("Table: title: %s, date: %s, filename: %s\n", name, dateToString(day, month, year), filename);
+    table_for_titles = hashtable_add(table_for_titles, name, dateToString(day, month, year), filename);
+    table_for_dates = hashtable_add(table_for_dates, dateToString(day, month, year), name, filename);
 
     insert_node(head, name, day, month, year, filename);
 
@@ -268,15 +335,16 @@ void delete_story(struct node** head, char* menu_filename){
     printf("The story has been deleted successfully.\n");
 }
 
-void view_story(struct node* head){
+void view_story(struct node* head, struct  hashtable* table_for_titles, struct  hashtable* table_for_dates){
     if (!head) {
         printf("No stories to view.\n");
         return;
     }
 
-    struct node* story = select_story(head, NULL);
+    char* story_filename = search_story(head, NULL, table_for_titles, table_for_dates);
+    if(story_filename == NULL) return;
 
-    FILE* file = fopen(story->filename, "r");
+    FILE* file = fopen(story_filename, "r");
 
     if(file == NULL){
         printf("Error opening file.\n");
@@ -291,6 +359,27 @@ void view_story(struct node* head){
     printf("\n");
 
     fclose(file);
+}
+
+void fillingHashtables(struct node* head, struct hashtable* table_for_dates, struct hashtable* table_for_titles){
+    struct node* itt = head;
+    if(itt != NULL){
+        while(itt != NULL){
+            printf("%s\n", itt->name);
+            printf("%s\n", dateToString(itt->day, itt->month, itt->year));
+            printf("%s\n", itt->filename);
+            table_for_titles = hashtable_add(table_for_titles, itt->name, dateToString(itt->day, itt->month, itt->year), itt->filename);
+            table_for_dates = hashtable_add(table_for_dates, dateToString(itt->day, itt->month, itt->year), itt->name, itt->filename);
+            itt = itt->next;
+        }
+        for(int i = 0; i < table_for_titles->num_of_buckets; i++){
+            for(struct linkedlist_node* curr = table_for_titles->buckets[i]->head; curr != NULL; curr = curr->next){
+                for(int j = 0; j < curr->secondValue->count; j++){
+                    printf("%d: %s, %s, %s\n", i, curr->sourceForHash, curr->secondValue->buff[j], curr->thirdValue->buff[j]);
+                }
+            }
+        }
+    }
 }
 
 void login(struct user* users, char* user_filename){
@@ -324,7 +413,21 @@ void login(struct user* users, char* user_filename){
         strcpy(menu_filename, username);
         strcat(menu_filename, ".txt");
 
-        int choice;
+        
+        struct  hashtable* table_for_titles = hashtable_init(10, 5);
+        struct  hashtable* table_for_dates = hashtable_init(10, 5);
+
+        //fillingHashtables(*head, table_for_dates, table_for_titles);
+        struct node* itt = *head;
+        if(itt != NULL){
+            while(itt != NULL){
+                table_for_titles = hashtable_add(table_for_titles, itt->name, dateToString(itt->day, itt->month, itt->year), itt->filename);
+                table_for_dates = hashtable_add(table_for_dates, dateToString(itt->day, itt->month, itt->year), itt->name, itt->filename);
+                itt = itt->next;
+            }
+        }
+
+        int choice = 0;
         while(1){
             printf("\nMenu:\n");
             printf("1. Add a story\n");
@@ -337,13 +440,13 @@ void login(struct user* users, char* user_filename){
 
             switch(choice){
                 case 1:
-                    add_story(head, menu_filename);
+                    add_story(head, menu_filename, table_for_titles, table_for_dates);
                     break;
                 case 2:
                     delete_story(head, menu_filename);
                     break;
                 case 3:
-                    view_story(*head);
+                    view_story(*head, table_for_titles, table_for_dates);
                     break;
                 case 4:
                     return;

@@ -15,7 +15,7 @@ int equals(char* a, char* b) {
 }
 
 #define STEP 2
-#define STRINGSIZE 40
+#define STRINGSIZE 60
 #define CAPACITY 10
 
 struct dynamic_array_t {
@@ -248,7 +248,7 @@ int printSecondValues(struct hashtable* table, char* sourceForHash){
         }
     }
     else {
-        printf("Wrong input!\n");
+        printf("Wrong input! Try again!\n");
         return 0;
     }
 
@@ -256,7 +256,7 @@ int printSecondValues(struct hashtable* table, char* sourceForHash){
 }
 
 char* dateToString(int day, int mount, int year){
-    char* str;
+    char* str = (char*) calloc(40, sizeof(char));
     char* dateString = calloc(40, sizeof(char));
 
     sprintf(str,"%d",day);
