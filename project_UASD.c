@@ -2,7 +2,6 @@
 #include<stdlib.h>
 #include<string.h>
 #include<time.h>
-#include"search.c"
 
 #define MAX_FILE_LINE_LENGTH 100//max number of symbols stored in a file
 #define MAX_MENU_LINE_LENGTH 100
@@ -146,7 +145,7 @@ void getting_menu(struct node** head, char* text){
 
 void print_menu(struct node* head){
     struct node* itt = head;
-    if(itt->name == NULL){
+    if(itt == NULL){
         printf("THERE ARE NO STORIES WRITTEN IN THE DIARY YET!\n");
     }
     else{
@@ -163,7 +162,7 @@ void print_menu(struct node* head){
 
 void add_story(struct node** head){
     char name[HEADING_SYMBOLS], text[MAX_FILE_LINE_LENGTH], filename[MAX_FILENAME_LENGTH];
-    int day, month, year, i = 0;
+    int day, month, year, i = 0, space_printed = 0;
     printf("\nENTER NAME OF STORY: ");
     getchar();
     gets(name);
@@ -184,82 +183,76 @@ void add_story(struct node** head){
     }while(year > 2023);
     
     generate_filename(filename);
-
-    printf("%s", filename);
     
     insert_node(head, name, filename, day, month, year);
-    printf("\nafter insert\n");
 
     FILE *story;
     story = fopen(filename,"w");
     printf("\nENTER THE STORY (FOR NEW LINES TYPE @)\n");
     printf("\n");
     while(1){
+        if(i == MAX_FILE_LINE_LENGTH - 1) break;
         text[i] = getchar();
-        if(text[i] == '\n' && text[i-1] != '!' && text[i-1] != '?' && text[i-1] != '.' && text[i-1] != ';'){
-            fprintf(story, ".");
-            printf(".");
-            break;
-        }
-        if(text[i] == '@'){
+        if(text[i] == '\n') break;
+        if (text[i] == '@') {
             fprintf(story, "\n");
-            printf("\n");
+            space_printed = 0;
         }
-        else{
-            if(text[i] != ' ' && text[i-1] != '@'){
-                if(text[i] == ' '){
-                    fprintf(story, " "); 
-                    printf(" ");
+        else {
+            if (text[i] != ' ') {
+                if (space_printed) {
+                    fprintf(story, " ");
+                    space_printed = 0;
                 }
                 fprintf(story, "%c", text[i]);
-                printf("%c", text[i]);
             }
+            else if (!space_printed) {
+                if(text[i-1] != '@'){
+                    space_printed = 1;
+                }
+            }
+            
         }
         i++;
+    }
+    if(text[i-1] != '!' && text[i-1] != '?' && text[i-1] != '.' && text[i-1] != ';'){
+        fprintf(story, ".");
     }
     printf("\n");
     fclose(story);
 }
 
-void fillingHashtables(struct node* head, struct hashtable* table_for_dates, struct hashtable* table_for_titles){
-    struct node* itt = head;
-    if(itt->name != NULL){
-        while(itt != NULL){
-            table_for_titles = hashtable_add(table_for_titles, itt->name, dateToString(itt->day, itt->month, itt->year), itt->filename);
-            table_for_dates = hashtable_add(table_for_dates, dateToString(itt->day, itt->month, itt->year), itt->name, itt->filename);
-            itt = itt->next;
-        }
-    }
-}
-
 void read_story(struct node* head){
-    if(head->name != NULL){
-        char text[MAX_FILE_LINE_LENGTH], name[HEADING_SYMBOLS];
-        FILE *read;
-        getchar();
-        while(1){
-            printf("\nENTER THE NAME OF THE ONE YOU WANT TO READ: ");
-            gets(name);
-            if(strcmp(name,"read all") == 0){
-                struct node* temp = head;
+    if(head == NULL) return;
+    char text[MAX_FILE_LINE_LENGTH], name[HEADING_SYMBOLS];
+    FILE *read = NULL;
+    getchar();
+    while(1){
+        printf("\nENTER THE NAME OF THE ONE YOU WANT TO READ: ");
+        gets(name);
+        if(strcmp(name,"read all") == 0){
+            struct node* temp = head;
+            printf("\n");
+            while(temp != NULL){
+                printf("    %s\n", temp->name);
+                read = fopen(temp->filename, "r");
+                while(fgets(text, MAX_FILE_LINE_LENGTH, read)){
+                    printf("%s\n", text);
+                }
                 printf("\n");
-                while(temp != NULL){
-                    printf("    %s\n", temp->name);
-                    read = fopen(temp->filename, "r");
-                    while(fgets(text, MAX_FILE_LINE_LENGTH, read)){
-                        printf("%s\n", text);
-                    }
-                    printf("\n");
-                    fclose(read);
-                    temp = temp->next;
-                }
-                break;
+                fclose(read);
+                temp = temp->next;
             }
-            else{
-                struct node* curr;
-                for (curr = head; head != NULL; head = head->next) {
-                    if (!strcmp(curr->name, name))break;
-                }
+            break;
+        }
+        else{
+            make_uppercase(name);
+            struct node* curr = head;
+            while(curr != NULL) {
+                if (!strcmp(curr->name, name))break;
+                curr = curr->next;
+            }
+            if (curr != NULL) {
                 if((read = fopen(curr->filename, "r")) != NULL){
                     printf("\n");
                     make_uppercase(name);
@@ -273,12 +266,13 @@ void read_story(struct node* head){
                     break;
                 }
                 else{
-                    fclose(read);
                     printf("ERROR WITH OPENING THE FILE\n");
                 }
+            }else{
+                printf("NODE NOT FOUND\n");
             }
-        };
-    }
+        }
+    };
 }
 
 int main(){
@@ -291,20 +285,9 @@ int main(){
         {
             if (*text == '\n') continue;
             getting_menu(&head, text);
-            //printf("%s\n", head->name);
-            //printf("%d\n", head->day);
-            //printf("%s\n", head->filename);
-            //printf("Got\n");
         }
     }    
     fclose(menu);
-
-    struct  hashtable* table_for_titles = hashtable_init(10, 5);
-    struct  hashtable* table_for_dates = hashtable_init(10, 5);
-
-    printf("HERE\n");
-    fillingHashtables(head, table_for_dates, table_for_titles);
-    printf("HERE\n");
     
     printf("THIS IS PERSONAL DIARY PLEASE DON'T LOOK IN IT IF IT'S NOT YOURS!\n\n");
     do{
