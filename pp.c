@@ -252,7 +252,6 @@ void add_story(struct node** head, char* menu_filename, struct  hashtable* table
     char filename[MAX_FILENAME_LENGTH];
     generate_filename(filename);
 
-    //printf("Table: title: %s, date: %s, filename: %s\n", name, dateToString(day, month, year), filename);
     table_for_titles = hashtable_add(table_for_titles, name, dateToString(day, month, year), filename);
     table_for_dates = hashtable_add(table_for_dates, dateToString(day, month, year), name, filename);
 
@@ -369,27 +368,6 @@ void view_story(struct node* head, struct  hashtable* table_for_titles, struct  
     
 }
 
-void fillingHashtables(struct node* head, struct hashtable* table_for_dates, struct hashtable* table_for_titles){
-    struct node* itt = head;
-    if(itt != NULL){
-        while(itt != NULL){
-            printf("%s\n", itt->name);
-            printf("%s\n", dateToString(itt->day, itt->month, itt->year));
-            printf("%s\n", itt->filename);
-            table_for_titles = hashtable_add(table_for_titles, itt->name, dateToString(itt->day, itt->month, itt->year), itt->filename);
-            table_for_dates = hashtable_add(table_for_dates, dateToString(itt->day, itt->month, itt->year), itt->name, itt->filename);
-            itt = itt->next;
-        }
-        for(int i = 0; i < table_for_titles->num_of_buckets; i++){
-            for(struct linkedlist_node* curr = table_for_titles->buckets[i]->head; curr != NULL; curr = curr->next){
-                for(int j = 0; j < curr->secondValue->count; j++){
-                    printf("%d: %s, %s, %s\n", i, curr->sourceForHash, curr->secondValue->buff[j], curr->thirdValue->buff[j]);
-                }
-            }
-        }
-    }
-}
-
 void login(struct user* users, char* user_filename){
     char username[MAX_USERNAME_LENGTH];
     char password[MAX_PASSWORD_LENGTH];
@@ -425,7 +403,6 @@ void login(struct user* users, char* user_filename){
         struct  hashtable* table_for_titles = hashtable_init(10, 5);
         struct  hashtable* table_for_dates = hashtable_init(10, 5);
 
-        //fillingHashtables(*head, table_for_dates, table_for_titles);
         struct node* itt = *head;
         if(itt != NULL){
             while(itt != NULL){
