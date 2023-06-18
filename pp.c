@@ -3,6 +3,7 @@
 #include<string.h>
 #include<time.h>
 #include"search.c"
+#include"file_encryption.h"
 
 #define MAX_FILE_LINE_LENGTH 100
 #define MAX_MENU_LINE_LENGTH 100
@@ -236,7 +237,7 @@ char* search_story(struct node* head, struct node** prev, struct  hashtable* tab
     return filename;
 }
 
-void add_story(struct node** head, char* menu_filename, struct  hashtable* table_for_titles, struct  hashtable* table_for_dates){
+void add_story(struct node** head, char* menu_filename, struct  hashtable* table_for_titles, struct  hashtable* table_for_dates, char* password){
     char name[MAX_FILE_LINE_LENGTH], text[MAX_FILE_LINE_LENGTH];
     int day, month, year, i = 0, space_printed = 0;
     printf("Enter the story name: ");
@@ -302,6 +303,7 @@ void add_story(struct node** head, char* menu_filename, struct  hashtable* table
         fprintf(story_file, ".");
     }
     fclose(story_file);
+    encrypt(password, filename);
 
     printf("The story has been added successfully.\n");
 }
@@ -338,7 +340,7 @@ void delete_story(struct node** head, char* menu_filename, struct  hashtable* ta
     printf("The story has been deleted successfully.\n");
 }
 
-void view_story(struct node* head, struct  hashtable* table_for_titles, struct  hashtable* table_for_dates){
+void view_story(struct node* head, struct  hashtable* table_for_titles, struct  hashtable* table_for_dates, char* password){
     if (!head) {
         printf("No stories to view.\n");
         return;
@@ -346,7 +348,6 @@ void view_story(struct node* head, struct  hashtable* table_for_titles, struct  
 
     char* story_filename = search_story(head, NULL, table_for_titles, table_for_dates);
     if(story_filename == NULL) return;
-
     FILE* file = fopen(story_filename, "r");
 
     if(file == NULL){
@@ -354,14 +355,18 @@ void view_story(struct node* head, struct  hashtable* table_for_titles, struct  
         exit(1);
     }
 
-    char line[MAX_FILE_LINE_LENGTH];
+    fclose(file);
+    decrypt(story_filename, password);
+    
+
+    /*char line[MAX_FILE_LINE_LENGTH];
 
     while (fgets(line, MAX_FILE_LINE_LENGTH, file)) {
         printf("%s", line);
-    }
+    }*/
     printf("\n");
 
-    fclose(file);
+    
 }
 
 void fillingHashtables(struct node* head, struct hashtable* table_for_dates, struct hashtable* table_for_titles){
@@ -443,13 +448,13 @@ void login(struct user* users, char* user_filename){
 
             switch(choice){
                 case 1:
-                    add_story(head, menu_filename, table_for_titles, table_for_dates);
+                    add_story(head, menu_filename, table_for_titles, table_for_dates, current->password);
                     break;
                 case 2:
                     delete_story(head, menu_filename, table_for_titles, table_for_dates);
                     break;
                 case 3:
-                    view_story(*head, table_for_titles, table_for_dates);
+                    view_story(*head, table_for_titles, table_for_dates, current->password);
                     break;
                 case 4:
                     free_hashtable(table_for_titles);
