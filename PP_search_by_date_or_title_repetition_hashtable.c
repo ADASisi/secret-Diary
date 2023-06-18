@@ -115,7 +115,8 @@ struct linkedlist_node* hashtable_contains_sourceForHash(struct hashtable* table
 
 int node_contains(struct linkedlist_node *curr, char* secondValue){
     for(int i = 0; i < curr->secondValue->count; i++){
-        if(!strcmp(secondValue, curr->secondValue->buff[i])) return i;
+        if(!strcmp(secondValue, curr->secondValue->buff[i])) 
+            return i;
     }
     return -1;
 }
@@ -268,6 +269,41 @@ char* dateToString(int day, int mount, int year){
     return dateString;
 }
 
+void hashtable_delete(struct hashtable* table, char* sourceForHash, char* secondValue){
+    int bucket_index = hash(sourceForHash) % table->num_of_buckets;
+    struct linkedlist* ll = table->buckets[bucket_index];
+    int i = -1;
+
+    struct linkedlist_node* curr = linkedlist_contains_sourceForHash(ll, sourceForHash);
+
+    if (curr != NULL) {
+        if ((i = node_contains(curr, secondValue)) != -1){
+            if(i == 0 && curr->secondValue->count < 2) {
+                curr =  ll->head;
+                if(equals(sourceForHash, curr->sourceForHash)){
+                    ll->head = curr->next;
+                }
+                while(curr != NULL && curr->next != NULL){
+                    if (equals(sourceForHash, curr->next->sourceForHash)) {
+                        printf("%s\n", curr->next->sourceForHash);
+                        struct linkedlist_node* temp = curr->next;
+                        curr->next = curr->next->next;
+                        free(temp);
+
+                    }
+                    curr = curr->next;
+                }
+            }
+            else{
+                strcpy(curr->secondValue->buff[i], curr->secondValue->buff[curr->secondValue->count - 1]);
+                curr->secondValue->count--;
+                strcpy(curr->thirdValue->buff[i], curr->thirdValue->buff[curr->thirdValue->count - 1]);
+                curr->thirdValue->count--;
+            }
+        }
+    }
+}
+
 /*
 void read_story(struct hashtable* table_for_dates, struct hashtable* table_for_titles){
         int option;
@@ -359,12 +395,32 @@ int main(){
         }
     }
 
+    hashtable_delete(table_for_dates, "23.4.2000", "title");
+    hashtable_delete(table_for_titles, "title", "23.4.2000");
+
+    printf("\n");
+    for(int i = 0; i < table_for_dates->num_of_buckets; i++){
+        for(struct linkedlist_node* curr = table_for_dates->buckets[i]->head; curr != NULL; curr = curr->next){
+            for(int j = 0; j < curr->secondValue->count; j++){
+                printf("%d: %s, %s, %s\n", i, curr->sourceForHash, curr->secondValue->buff[j], curr->thirdValue->buff[j]);
+            }
+        }
+    }
+    printf("\n");
+    for(int i = 0; i < table_for_titles->num_of_buckets; i++){
+        for(struct linkedlist_node* curr = table_for_titles->buckets[i]->head; curr != NULL; curr = curr->next){
+            for(int j = 0; j < curr->secondValue->count; j++){
+                printf("%d: %s, %s, %s\n", i, curr->sourceForHash, curr->secondValue->buff[j], curr->thirdValue->buff[j]);
+            }
+        }
+    }
+
     struct linkedlist_node *curr = calloc(1, sizeof(struct linkedlist_node));
 
-    if((hashtable_contains(table_for_dates, "22/02/2015", "title5")) != NULL) printf("Search by date - file name: %s\n", hashtable_contains(table_for_dates, "22/02/2015", "title5"));
+    if((hashtable_contains(table_for_dates, "23.4.2000", "title")) != NULL) printf("Search by date - file name: %s\n", hashtable_contains(table_for_dates, "23.4.2000", "title"));
     else printf("does not contain\n");
 
-    if((hashtable_contains(table_for_titles, "df", "22/02/2015")) != NULL) printf("Search by title - file name: %s\n", hashtable_contains(table_for_titles, "title5", "22/02/2015"));
+    if((hashtable_contains(table_for_titles, "title", "23.4.2000")) != NULL) printf("Search by title - file name: %s\n", hashtable_contains(table_for_titles, "title", "23.4.2000"));
     else printf("does not contain\n");
 
     char* str;

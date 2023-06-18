@@ -272,3 +272,38 @@ char* dateToString(int day, int mount, int year){
 
     return dateString;
 }
+
+void hashtable_delete(struct hashtable* table, char* sourceForHash, char* secondValue){
+    int bucket_index = hash(sourceForHash) % table->num_of_buckets;
+    struct linkedlist* ll = table->buckets[bucket_index];
+    int i = -1;
+
+    struct linkedlist_node* curr = linkedlist_contains_sourceForHash(ll, sourceForHash);
+
+    if (curr != NULL) {
+        if ((i = node_contains(curr, secondValue)) != -1){
+            if(i == 0 && curr->secondValue->count < 2) {
+                curr =  ll->head;
+                if(equals(sourceForHash, curr->sourceForHash)){
+                    ll->head = curr->next;
+                }
+                while(curr != NULL && curr->next != NULL){
+                    if (equals(sourceForHash, curr->next->sourceForHash)) {
+                        printf("%s\n", curr->next->sourceForHash);
+                        struct linkedlist_node* temp = curr->next;
+                        curr->next = curr->next->next;
+                        free(temp);
+
+                    }
+                    curr = curr->next;
+                }
+            }
+            else{
+                strcpy(curr->secondValue->buff[i], curr->secondValue->buff[curr->secondValue->count - 1]);
+                curr->secondValue->count--;
+                strcpy(curr->thirdValue->buff[i], curr->thirdValue->buff[curr->thirdValue->count - 1]);
+                curr->thirdValue->count--;
+            }
+        }
+    }
+}

@@ -201,7 +201,7 @@ char* search_story(struct node* head, struct node** prev, struct  hashtable* tab
         sourceForHash[strlen(sourceForHash) - 1] = '\0';
         
         if(printSecondValues(table_for_dates, sourceForHash)){
-            printf("Enter the date of the story: ");
+            printf("Enter the title of the story: ");
             fgets(secondValue, STRINGSIZE, stdin);
             secondValue[strlen(secondValue) - 1] = '\0';
 
@@ -211,12 +211,12 @@ char* search_story(struct node* head, struct node** prev, struct  hashtable* tab
 
     }
     else if(option == 2){
-        printf("\nENTER THE TITLE OF THE STORY YOU WANT TO READ: ");
+        printf("\nEnter the title of the story you want to read: ");
         fgets(sourceForHash, STRINGSIZE, stdin);
         sourceForHash[strlen(sourceForHash) - 1] = '\0';
         
         if(printSecondValues(table_for_titles, sourceForHash)){
-            printf("Enter the title of the story: ");
+            printf("Enter the date of the story: ");
             fgets(secondValue, STRINGSIZE, stdin);
             secondValue[strlen(secondValue) - 1] = '\0';
 
@@ -306,12 +306,15 @@ void add_story(struct node** head, char* menu_filename, struct  hashtable* table
     printf("The story has been added successfully.\n");
 }
 
-void delete_story(struct node** head, char* menu_filename){
+void delete_story(struct node** head, char* menu_filename, struct  hashtable* table_for_titles, struct  hashtable* table_for_dates){
     if (!*head) {
         printf("No stories to delete.\n");
         return;
     }
     struct node* prev, *current = select_story(*head, &prev);
+
+    hashtable_delete(table_for_titles, current->name, dateToString(current->day, current->month, current->year));
+    hashtable_delete(table_for_dates, dateToString(current->day, current->month, current->year), current->name);
 
     if(prev == NULL){
         *head = current->next;
@@ -443,12 +446,14 @@ void login(struct user* users, char* user_filename){
                     add_story(head, menu_filename, table_for_titles, table_for_dates);
                     break;
                 case 2:
-                    delete_story(head, menu_filename);
+                    delete_story(head, menu_filename, table_for_titles, table_for_dates);
                     break;
                 case 3:
                     view_story(*head, table_for_titles, table_for_dates);
                     break;
                 case 4:
+                    free_hashtable(table_for_titles);
+                    free_hashtable(table_for_dates);
                     return;
                 default:
                     printf("Invalid choice. Please try again.\n");
