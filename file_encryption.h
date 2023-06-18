@@ -43,7 +43,6 @@ int character_count(FILE* ptr)
 }
 
 
-
 void encrypt(char* key, char* filename)
 {
     FILE* ptr;
